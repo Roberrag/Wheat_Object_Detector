@@ -2,8 +2,9 @@ import random
 import cv2
 import numpy as np
 import torch
+import os
 
-# from .configuration import SystemConfig, TrainerConfig, DataloaderConfig
+from .configuration import SystemConfig, TrainerConfig, DataloaderConfig
 
 
 class AverageMeter:
@@ -139,3 +140,117 @@ def random_flip(img, boxes):
         boxes[:, 0] = xmin
         boxes[:, 2] = xmax
     return img, boxes
+
+
+def init_object_detector_dataset(dataframe, firstIndex, lastindex, data_path, image_folder, isTest=False):
+    #     dataset_dicts = []
+    last_id = ""
+    initflag = False
+    flag = True
+
+    fnames = []
+    boxes = []
+    labels = []
+    #     fnames.append(row["image_id"] + ".jpg")
+
+    if isTest == False:
+
+        for index, row in dataframe.iterrows():
+
+            #                 flag = False
+            if index > lastindex:
+                #                 print(row["bbox"])
+                boxes.append(torch.Tensor(box))
+                labels.append(torch.LongTensor(label))
+                break
+
+            if index >= firstIndex:
+                if flag:
+                    fnames.append(row["image_id"] + ".jpg")
+
+                if flag == False:
+                    if fnames[-1] != row["image_id"] + ".jpg":
+                        fnames.append(row["image_id"] + ".jpg")
+                else:
+                    flag = False
+                #                 labels.append("wl")
+                #                 image_id = row["image_id"]
+                #                 height = row["height"]
+                #                 width = row["width"]
+
+                bbox = row["bbox"]
+                if last_id != row["image_id"]:
+                    last_id = row["image_id"]
+                    if initflag:
+                        boxes.append(torch.Tensor(box))
+                        labels.append(torch.LongTensor(label))
+                    #                         record["annotations"] = objs
+                    #                         dataset_dicts.append(record)
+                    initflag = True
+                    imagefolderpath = os.path.join(data_path, image_folder)
+                    imagepath = row["image_id"] + ".jpg"
+                    fullpath = os.path.join(imagefolderpath, imagepath)
+                    #                     record["file_name"] = fullpath
+                    #                     record["height"] = height
+                    #                     record["width"] = width
+                    #                     fnames.append(row["image_id"] + ".jpg")
+
+                    #                     record["image_id"] = image_id
+                    box = []
+                    label = []
+                    #                     objs = []
+                    bboxfloat = create_label_array(bbox)
+                    xmax = int(bboxfloat[0]) + int(bboxfloat[2])
+                    ymax = int(bboxfloat[1]) + int(bboxfloat[3])
+                    box.append([int(bboxfloat[0]), int(bboxfloat[1]), xmax, ymax])
+                    label.append(1)
+                #                     obj = {
+                #                     "bbox": [int(bboxfloat[0]), int(bboxfloat[1]), int(bboxfloat[2]), int(bboxfloat[3])],
+                #                     "bbox_mode": BoxMode.XYWH_ABS,
+                #                     "category_id": 0,
+                #                     "iscrowd": 0
+                #                     }
+                #                     objs.append(obj)# model_zoo has a lots of pre-trained model
+
+                else:
+                    bboxfloat = create_label_array(bbox)
+                    xmax = int(bboxfloat[0]) + int(bboxfloat[2])
+                    ymax = int(bboxfloat[1]) + int(bboxfloat[3])
+                    box.append([int(bboxfloat[0]), int(bboxfloat[1]), xmax, ymax])
+                    label.append(1)
+                    if index == 147792:
+                        boxes.append(torch.Tensor(box))
+                        labels.append(torch.LongTensor(label))
+    #                     obj = {
+    #                         "bbox": [int(bboxfloat[0]), int(bboxfloat[1]), int(bboxfloat[2]), int(bboxfloat[3])],
+    #                         "bbox_mode": BoxMode.XYWH_ABS,
+    #                         "category_id": 0,
+    #                         "iscrowd": 0
+    #                     }
+    #                     objs.append(obj)
+    else:
+        for file in dataframe:
+            #             record = {}
+            imagefolderpath = os.path.join(data_path, image_folder)
+            imagepath = file
+            fullpath = os.path.join(imagefolderpath, imagepath)
+            #             record["file_name"] = fullpath
+            #             imageid = file.replace(".jpg","")
+            fnames.append(file)
+            #             record["image_id"] = imageid
+            tempImg = cv2.imread(fullpath)
+            height, width, channels = tempImg.shape
+            boxes = []
+            labels = []
+    #             record['height'] = height
+    #             record["width"] = width
+    #             dataset_dicts.append(record)
+
+    return fnames, boxes, labels
+
+def create_label_array(txtobject):
+    text = txtobject.replace('[','')
+    text = text.replace(']','')
+    text = text.rstrip().split(', ')
+    array = np.array(text, dtype = np.float64)
+    return array

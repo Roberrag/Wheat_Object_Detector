@@ -6,8 +6,8 @@ import torch
 from tqdm.auto import tqdm
 
 
-# from .utils import AverageMeter
-# from .encoder import DataEncoder
+from .utils import AverageMeter
+from .encoder import DataEncoder
 
 
 def train_hook_default(

@@ -30,11 +30,11 @@ class DataloaderConfig:
 
 @dataclass
 class OptimizerConfig:
-    learning_rate: float = 0.0003  # determines the speed of network's weights update
+    learning_rate: float = 1e-3  # determines the speed of network's weights update
     momentum: float = 0.9  # used to improve vanilla SGD algorithm and provide better handling of local minimas
-    weight_decay: float = 0.0001  # amount of additional regularization on the weights values
+    weight_decay: float = 1e-4  # amount of additional regularization on the weights values
     lr_step_milestones: Iterable = (
-        30, 40
+        40, 100
     )  # at which epoches should we make a "step" in learning rate (i.e. decrease it in some manner)
     lr_gamma: float = 0.1  # multiplier applied to current learning rate at each of lr_ctep_milestones
 
@@ -45,5 +45,5 @@ class TrainerConfig:
     model_save_best: bool = True  # save model with best accuracy
     model_saving_frequency: int = 1  # frequency of model state savings per epochs
     device: str = "cpu"  # device to use for training.
-    epoch_num: int = 50  # number of times the whole dataset will be passed through the network
+    epoch_num: int = 200  # number of times the whole dataset will be passed through the network
     progress_bar: bool = False  # enable progress bar visualization during train process

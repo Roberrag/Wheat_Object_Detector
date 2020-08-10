@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import matplotlib.pyplot as plt
 
-# from .visualizer import Visualizer
+from .visualizer import Visualizer
 
 
 class MatplotlibVisualizer(Visualizer):

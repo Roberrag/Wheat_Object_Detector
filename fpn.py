@@ -1,5 +1,5 @@
 import torch.nn as nn
-# import torchvision.models as models
+import torchvision.models as models
 import torch.nn.functional as F
 import sys
 
@@ -10,8 +10,8 @@ class FPN(nn.Module):
         assert hasattr(models, backbone), "Undefined encoder type"
 
         # load model
-        self.feature_extractor = getattr(models, backbone)(pretrained=False)
-        self.feature_extractor.load_state_dict(torch.load('models/resnet50-19c8e357.pth'))
+        self.feature_extractor = getattr(models, backbone)(pretrained=True)
+        # self.feature_extractor.load_state_dict(torch.load('models/resnet50-19c8e357.pth'))
         #         for param in self.feature_extractor.parameters():
         #             param.requires_grad = False
         #         self.feature_extractor.layer2.requires_grad = True

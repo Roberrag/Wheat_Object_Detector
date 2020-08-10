@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 
-# from fpn import FPN
+from fpn import FPN
 
 
 class Detector(nn.Module):

@@ -11,8 +11,8 @@ import torch
 from tqdm.auto import tqdm
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-# from .hooks import test_hook_default, train_hook_default
-# from .visualizer import Visualizer
+from .hooks import test_hook_default, train_hook_default
+from .visualizer import Visualizer
 
 
 class Trainer:  # pylint: disable=too-many-instance-attributes
@@ -114,17 +114,16 @@ class Trainer:  # pylint: disable=too-many-instance-attributes
                 get_key_metric=self.get_key_metric
             )
 #             print(output_test)
-            if self.visualizer:
-                self.visualizer.update_charts(
-                    None, output_train['loss'], output_test['metric'], output_test['loss'],
-                    self.optimizer.param_groups[0]['lr'], epoch
-                )
+#             if self.visualizer:
+#                 self.visualizer.update_charts(
+#                     None, output_train['loss'], output_test['metric'], output_test['loss'],
+#                     self.optimizer.param_groups[0]['lr'], epoch
+#                 )
 
             self.metrics['epoch'].append(epoch)
             self.metrics['train_loss'].append(output_train['loss'])
             self.metrics['test_loss'].append(output_test['loss'])
             self.metrics['test_metric'].append(output_test['metric'])
-            wandb.log({"train_loss": output_train['loss'], "test_loss": output_test['loss'], "test_metric": output_test['metric']})
 
             if self.lr_scheduler is not None:
                 if isinstance(self.lr_scheduler, ReduceLROnPlateau):

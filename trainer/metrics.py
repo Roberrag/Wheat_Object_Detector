@@ -1,8 +1,8 @@
 import torch
 
-# from .utils import AverageMeter
-# from .voc_eval import VOCEvaluator
-# from .base_metric import BaseMetric
+from .utils import AverageMeter
+from .voc_eval import VOCEvaluator
+from .base_metric import BaseMetric
 
 
 class AccuracyEstimator(BaseMetric):

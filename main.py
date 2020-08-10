@@ -1,16 +1,63 @@
+
+import random
+
+from operator import itemgetter
+
+import cv2
+import numpy as np
+import torch
+import torch.optim as optim
+import matplotlib.pyplot as plt
+
+from albumentations import (
+    CLAHE,
+    Blur,
+    OneOf,
+    Compose,
+    RGBShift,
+    GaussNoise,
+    RandomGamma,
+    RandomContrast,
+    RandomBrightness,
+)
+
+from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import MultiStepLR
+from albumentations.pytorch.transforms import ToTensorV2
+from albumentations.augmentations.transforms import HueSaturationValue
+from albumentations.augmentations.transforms import Normalize
+
+from experiment import Experiment
+from trainer import Trainer, hooks, configuration
+from detector import Detector
+from trainer.configuration import OptimizerConfig, DataloaderConfig, TrainerConfig, DatasetConfig
+from trainer.utils import patch_configs
+from trainer.utils import setup_system
+from detection_loss import DetectionLoss
+from trainer.encoder import (
+    DataEncoder,
+    decode_boxes,
+    encode_boxes,
+    generate_anchors,
+    generate_anchor_grid,
+)
+from trainer.metrics import APEstimator
+from trainer.datasets import WheatDataset
+from trainer.matplotlib_visualizer import MatplotlibVisualizer
+
 if __name__ == '__main__':
-    batch_size_to_set = 30
-    epoch_num = 200
-    lr_used = 1e-3
-    momentum = 0.9
-    weight_decay = 1e-4
-    lr_step_milestones = [40, 100]
-    lr_gamma = 0.1
+    batch_size_to_set = DataloaderConfig.batch_size
+    epoch_num = TrainerConfig.epoch_num
+    lr_used = OptimizerConfig.learning_rate
+    momentum = OptimizerConfig.momentum
+    weight_decay = OptimizerConfig.weight_decay
+    lr_step_milestones = OptimizerConfig.lr_step_milestones
+    lr_gamma = OptimizerConfig.lr_gamma
     dataloader_config, trainer_config = patch_configs(epoch_num_to_set=epoch_num, batch_size_to_set=batch_size_to_set)
 
     #     torch.autograd.set_detect_anomaly(True)
     dataset_config = DatasetConfig(
-        root_dir="train",
+        root_dir="/home/rober/Documents/Kaggle_projects/global-wheat-detection/train",
         train_transforms=[
             RandomBrightness(p=0.5),
             RandomContrast(p=0.5),
@@ -21,10 +68,6 @@ if __name__ == '__main__':
             ],
                 p=1),
             OneOf([Blur(always_apply=True), GaussNoise(always_apply=True)], p=1),
-            #             OneOf([HorizontalFlip(p=0.5),
-            #                 ShiftScaleRotate(p=0.5)], p=1),
-            OneOf([MultiplicativeNoise(multiplier=0.5, p=1),
-                   ]),
             CLAHE(),
             Normalize(),
             ToTensorV2()

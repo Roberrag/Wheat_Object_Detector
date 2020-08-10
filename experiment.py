@@ -1,3 +1,51 @@
+import os
+import random
+
+from operator import itemgetter
+
+import cv2
+import numpy as np
+import torch
+import torch.optim as optim
+import matplotlib.pyplot as plt
+
+from albumentations import (
+    CLAHE,
+    Blur,
+    OneOf,
+    Compose,
+    RGBShift,
+    GaussNoise,
+    RandomGamma,
+    RandomContrast,
+    RandomBrightness,
+)
+
+from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import MultiStepLR
+from albumentations.pytorch.transforms import ToTensorV2
+from albumentations.augmentations.transforms import HueSaturationValue
+from albumentations.augmentations.transforms import Normalize
+
+from trainer import Trainer, hooks, configuration
+from detector import Detector
+from trainer.configuration import SystemConfig, DatasetConfig, DataloaderConfig, OptimizerConfig, TrainerConfig
+from trainer.datasets import WheatDataset
+from trainer.hooks import train_hook_detection, test_hook_detection, end_epoch_hook_detection
+from trainer.utils import patch_configs
+from trainer.utils import setup_system
+from detection_loss import DetectionLoss
+from trainer.encoder import (
+    DataEncoder,
+    decode_boxes,
+    encode_boxes,
+    generate_anchors,
+    generate_anchor_grid,
+)
+from trainer.metrics import APEstimator
+from trainer.matplotlib_visualizer import MatplotlibVisualizer
+
+
 class Experiment:
     def __init__(
             self,
@@ -6,7 +54,7 @@ class Experiment:
             dataloader_config: DataloaderConfig = DataloaderConfig(),  # pylint: disable=redefined-outer-name
             optimizer_config: OptimizerConfig = OptimizerConfig(),  # pylint: disable=redefined-outer-name
     ):
-        data_root = ""
+        data_root = "/home/rober/Documents/Kaggle_projects/global-wheat-detection"
         imagesFolder = "train"
         testFolder = "test"
         csv_file = "train.csv"
@@ -161,7 +209,6 @@ class Experiment:
                 if c_dets.size > 0:
                     boxes = c_dets[:, :4]
                     for box in boxes:
-                        #                         print("xmin: {}, ymin: {}, xmax: {}, ymax: {}".format(int(box[0]), int(box[1]), int(box[2]), int(box[3])))
                         pred_img = cv2.rectangle(
                             pred_img, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (0, 0, 255),
                             thickness=2
