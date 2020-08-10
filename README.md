@@ -9,7 +9,7 @@ https://www.kaggle.com/c/global-wheat-detection/data?select=train
 
 In order to download the dataset just use the following Kaggle API commands:
 
-`pip install kaggle`
+`pip install kaggle` <br>
 `kaggle competitions download -c global-wheat-detection`
 
 The model trained has a mAP = 0.75.
