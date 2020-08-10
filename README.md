@@ -1,4 +1,6 @@
 # Wheat_Object_Detector
+
+![header](Felsoetold_Wheat_field,_Hungary.jpg)
 Resnet 50 and Feature Pyramid Network implementation for wheat object detector
 
 The dataset was provided by the Kaggle community in the following link:
@@ -14,7 +16,7 @@ The model trained has a mAP = 0.75.
 
 The model has the following results:
 
-![GitHub Logo](/wheatresults.png)
+![Results](/wheatresults.png)
 
 If you have any inquiry do not hesitate in contact me:
 
